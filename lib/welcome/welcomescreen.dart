@@ -58,18 +58,22 @@ class WelcomeScree extends State {
     flutterLocalNotificationsPlugin.initialize(initSetttings,
         onSelectNotification: onSelectNotification);
   }
- Future onSelectNotification(String payload) {
+/* Future onSelectNotification(String payload) {
    debugPrint("payload : $payload");
    showDialog(
      context: context,
      builder: notificationExpiredAlert
-     /*builder: (_) => new AlertDialog(
+     *//*builder: (_) => new AlertDialog(
        title: new Text('TheRedshank'),
        content: new Text('$payload'),
-     ),*/
+     ),*//*
    );
- }
-
+ }*/
+  Future<void> onSelectNotification(String payload) async {
+    if (payload != null) {
+      debugPrint('notification payload: ' + payload);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
