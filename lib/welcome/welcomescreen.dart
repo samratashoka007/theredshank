@@ -5,7 +5,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:http/http.dart'as http;
@@ -26,10 +28,12 @@ class Welcome extends StatefulWidget{
 }
 
 class WelcomeScree extends State {
+  final MethodChannel platform =
+  MethodChannel('crossingthestreams.io/resourceResolver');
  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   String name, username, avatar,tokenNotified;
   bool isData = false;
-  String msg ;
+  String msg ,getToken;
   String email,password,userId;
   bool loader = false;
   Future<Album> futureAlbum;
@@ -37,6 +41,7 @@ class WelcomeScree extends State {
   bool _validate = false;
   bool _buttonEnabled = true;
   String d_userId,tokenId;
+
 
   Timer timer;
   //int counter = 0;
@@ -57,6 +62,26 @@ class WelcomeScree extends State {
     var initSetttings = new InitializationSettings(android, iOS);
     flutterLocalNotificationsPlugin.initialize(initSetttings,
         onSelectNotification: onSelectNotification);
+    fetchData();
+
+  }
+  fetchData() async{
+    SharedPreferences savetokenData=await SharedPreferences.getInstance();
+    setState(() {
+      getToken=(savetokenData.getString('tokenNo')??'');
+      print(getToken);
+
+      if(getToken.length==0||getToken=="null"){
+        msg="";
+        tokenCtrl.text="";
+      }
+      else{
+        msg=getToken.toString();
+        tokenCtrl.text=getToken.toString();
+        _buttonEnabled=false;
+
+      }
+    });
   }
 /* Future onSelectNotification(String payload) {
    debugPrint("payload : $payload");
@@ -69,6 +94,7 @@ class WelcomeScree extends State {
      ),*//*
    );
  }*/
+
   Future<void> onSelectNotification(String payload) async {
     if (payload != null) {
       debugPrint('notification payload: ' + payload);
@@ -115,19 +141,43 @@ class WelcomeScree extends State {
           ],
 
         ),
-        body: SafeArea(child: Builder(builder: (context) {
+       /* body:WillPopScope(
+          onWillPop: (){ // will triggered as we click back button
+            saveLastScreen(Route lastRoute); // saving to SharedPref here
+            return Future.value(true);
+          },
+          child:SafeArea(child: Builder(builder: (context) {
+            return Stack(
+              children: <Widget>[
+                WelcomFormn(context),
+                loader ? LoaderWidget() : Container()
+              ],
+            );
+          }
+
+
+          )) ,
+        )*/
+
+
+      body:SafeArea(child: Builder(builder: (context) {
           return Stack(
             children: <Widget>[
               WelcomFormn(context),
               loader ? LoaderWidget() : Container()
             ],
           );
-        }))
+        }
+
+
+        ))
 
     );
 
 
   }
+
+
    fetchTrack() async {
      var urlLogout='http://foodtruck.websquareit.com/index.php/welcome/data';
      SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
@@ -253,9 +303,12 @@ class WelcomeScree extends State {
    );
  }*/
   showNotification() async {
+
+    String alarmUri = await platform.invokeMethod('getAlarmUri');
+    final x = UriAndroidNotificationSound(alarmUri);
    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
        'your channel id', 'your channel name', 'your channel description',
-     sound:RawResourceAndroidNotificationSound('slow_spring_board') ,
+        sound:RawResourceAndroidNotificationSound('slow_spring_board'),
        importance: Importance.Max,
        priority: Priority.High,
       );
@@ -270,6 +323,13 @@ class WelcomeScree extends State {
      platformChannelSpecifics,
      payload: notificationExpiredAlert(context),
    );
+   /*FlutterRingtonePlayer.play(
+     android: AndroidSounds.notification,
+     ios: IosSounds.glass,
+     looping: true, // Android only - API >= 28
+     volume: 0.1, // Android only - API >= 28
+     asAlarm: false, // Android only - all APIs
+   );*/
  }
   /*Future showNotification() async {
     var scheduledNotificationDateTime =
@@ -585,6 +645,7 @@ class WelcomeScree extends State {
     String tokenNo=message['token_num'];
     print(tokenNo);
     msg=tokenNo;
+    saveTokenNo('tokenNo',tokenNo);
     if(response.statusCode == 200){
       setState(() {
         loader = false;
@@ -646,10 +707,10 @@ class WelcomeScree extends State {
 
   }
 
-  Future<bool> getStringValue(String key) async {
+  Future<bool> saveTokenNo(String key ,String value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    return prefs.getString(key) ?? false;
+    return prefs.setString(key, value);
   }
   Future<bool> getBooleanValue(String key) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -659,7 +720,8 @@ class WelcomeScree extends State {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.clear();
   }
- WelcomFormn(BuildContext context  ) {
+ WelcomFormn(BuildContext context ) {
+
    return SingleChildScrollView(
      child: Form(
        child: Padding(
@@ -859,6 +921,11 @@ class WelcomeScree extends State {
      ),
    );
  }
+
+  void saveLastRoute(Route lastRoute) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('last_route', lastRoute.settings.name);
+  }
 }
 
 
