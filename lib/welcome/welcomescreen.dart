@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 
+import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,10 +27,9 @@ class Welcome extends StatefulWidget{
     return WelcomeScree();
   }
 }
-
+const alarmAudioPath = "sound_alarm.mp3";
 class WelcomeScree extends State {
-  final MethodChannel platform =
-  MethodChannel('crossingthestreams.io/resourceResolver');
+
  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   String name, username, avatar,tokenNotified;
   bool isData = false;
@@ -41,6 +41,8 @@ class WelcomeScree extends State {
   bool _validate = false;
   bool _buttonEnabled = true;
   String d_userId,tokenId;
+  static AudioCache player = new AudioCache();
+
 
 
   Timer timer;
@@ -79,7 +81,8 @@ class WelcomeScree extends State {
         msg=getToken.toString();
         tokenCtrl.text=getToken.toString();
         _buttonEnabled=false;
-
+        timer = Timer.periodic(Duration(seconds: 60), (Timer t) => fetchTrack());
+        timer = Timer.periodic(Duration(seconds: 30), (Timer t) => fetchOrder());
       }
     });
   }
@@ -186,9 +189,11 @@ class WelcomeScree extends State {
        userId=(sharedPreferences.getString('u_id')??'');
 
      });
+
+     var data = {'u_id' : userId};
      //loader=true;
      //var logoutdata={'u_id':userId,'email':email};
-     var response = await http.post(urlLogout);
+     var response = await http.post(urlLogout,body: data);
      String jsonsDataStringf = response.body.toString();
      // Getting Server response into variable.
      var messagef = json.decode(response.body);
@@ -197,7 +202,7 @@ class WelcomeScree extends State {
       d_userId=messagef['u_id'];
       tokenId=messagef['token_num'];
 
-      if(userId==d_userId && tokenId==msg){
+      if(userId==d_userId){
         if(tokenId==''||tokenId.length==0){
          // loader=false;
           sessionExpiredAlert(context);
@@ -244,16 +249,19 @@ class WelcomeScree extends State {
     }*/
   }
   fetchOrder() async {
-    var Response = await http.get(
-      "http://foodtruck.websquareit.com/index.php/welcome/co_data",
-      headers: {"Accept": "application/json"},
-    );
+
     SharedPreferences sharedPreferences=await SharedPreferences.getInstance();
     setState(() {
       email=(sharedPreferences.getString('email')??'');
       userId=(sharedPreferences.getString('u_id')??'');
 
     });
+    var data = {'u_id' : userId};
+    var Response = await http.post(
+      "http://foodtruck.websquareit.com/index.php/welcome/co_data",
+    //  headers: {"Accept": "application/json"},
+      body: data
+    );
    // loader=true;
     //var logoutdata={'u_id':userId,'email':email};
     if (Response.statusCode == 200) {
@@ -261,7 +269,7 @@ class WelcomeScree extends State {
         String responseBody = Response.body;
         var responseJSON = json.decode(responseBody);
         username = responseJSON['u_id'];
-        name = responseJSON['email'];
+      //  name = responseJSON['email'];
         avatar = responseJSON['msg'];
         tokenNotified = responseJSON['token_num'];
         if(avatar==''||avatar==null||avatar.length==0){
@@ -304,11 +312,11 @@ class WelcomeScree extends State {
  }*/
   showNotification() async {
 
-    String alarmUri = await platform.invokeMethod('getAlarmUri');
-    final x = UriAndroidNotificationSound(alarmUri);
+    /*String alarmUri = await platform.invokeMethod('getAlarmUri');
+    final x = UriAndroidNotificationSound(alarmUri);*/
    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
        'your channel id', 'your channel name', 'your channel description',
-        sound:RawResourceAndroidNotificationSound('slow_spring_board'),
+        sound:RawResourceAndroidNotificationSound("moonless"),
        importance: Importance.Max,
        priority: Priority.High,
       );
@@ -323,6 +331,7 @@ class WelcomeScree extends State {
      platformChannelSpecifics,
      payload: notificationExpiredAlert(context),
    );
+   player.play(alarmAudioPath);
    /*FlutterRingtonePlayer.play(
      android: AndroidSounds.notification,
      ios: IosSounds.glass,
@@ -490,9 +499,9 @@ class WelcomeScree extends State {
 
     CupertinoAlertDialog cupertinoAlertDialog=CupertinoAlertDialog(
       title: Text("Token Expired"),
-      content: Text("You Need to login again"),
+      content: Text("You need to login again"),
       actions: <Widget>[
-        cancel,
+       // cancel,
         yesButtn,
       ],
     );
