@@ -36,7 +36,7 @@ class RootState extends State<Root> {
      getBooleanValue('logged_in').then((value) {
        if (value) {
 //        route = MaterialPageRoute(builder: (context) => Home());
-         route = MaterialPageRoute(builder: (context) => Welcome());
+         route =  MaterialPageRoute(builder: (context) => Welcome());
          Navigator.pushReplacement(context, route);
        } else {
          route = MaterialPageRoute(builder: (context) => HomeScreen());

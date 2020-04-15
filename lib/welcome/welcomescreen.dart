@@ -12,6 +12,7 @@ import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:http/http.dart'as http;
+import 'package:move_to_background/move_to_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theredshank/Modal/Validation.dart';
 import 'package:theredshank/Theme/Loader.dart';
@@ -106,27 +107,19 @@ class WelcomeScree extends State {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Scaffold(
-      //  key: _scaffoldKey,
+    return WillPopScope(
+      onWillPop: () async {
+        MoveToBackground.moveTaskToBack();
+        return false;
+      },
+      child: Scaffold(
         appBar: AppBar(
           elevation: 0.0,
           title: Text("TheRedshank"),
           backgroundColor: Colors.red.shade800,
-          /* actions: <Widget>[
-          Text('Welcome')
-        */ /*  InkResponse(
 
-              onTap: (){
-
-            },
-
-            */ /**/ /*child: Padding(
-              padding: EdgeInsets.only(right: 10.0),
-              child: Icon(Icons.shopping_cart),
-            ),*/ /**/ /*
-          )*/ /*
-        ],*/
           actions: <Widget>[
+
             Padding(
               padding: const EdgeInsets.only(top: 0.0),
               child:  new IconButton(
@@ -141,9 +134,24 @@ class WelcomeScree extends State {
             ),
 
 
+
           ],
 
         ),
+          body:SafeArea(child: Builder(builder: (context) {
+            return Stack(
+              children: <Widget>[
+                WelcomFormn(context),
+                loader ? LoaderWidget() : Container()
+              ],
+            );
+          }
+
+
+          ))
+      ),
+      //  key: _scaffoldKey,
+
        /* body:WillPopScope(
           onWillPop: (){ // will triggered as we click back button
             saveLastScreen(Route lastRoute); // saving to SharedPref here
@@ -163,17 +171,7 @@ class WelcomeScree extends State {
         )*/
 
 
-      body:SafeArea(child: Builder(builder: (context) {
-          return Stack(
-            children: <Widget>[
-              WelcomFormn(context),
-              loader ? LoaderWidget() : Container()
-            ],
-          );
-        }
 
-
-        ))
 
     );
 

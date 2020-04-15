@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'Root.dart';
 import 'Theme/Color.dart';
+import 'welcome/welcomescreen.dart';
 
 void main(){
   runApp(MainPage());
@@ -33,7 +34,13 @@ class MainPage extends StatelessWidget{
       home: Root(),
 
       debugShowCheckedModeBanner: false,
-      routes: <String, WidgetBuilder>{'/root': (context) => Root()},
+     /* routes: <String, WidgetBuilder>{'/root': (context) => Root()},*/
+    routes: {
+      '/root': (context) {
+        return Root();
+      },
+
+    }
     );
   }
 }

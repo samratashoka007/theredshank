@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:theredshank/Home/Home.dart';
 import 'package:theredshank/Login/Login.dart';
 import 'package:theredshank/Modal/Validation.dart';
+import 'package:theredshank/Root.dart';
 import 'package:theredshank/Theme/Loader.dart';
 import 'package:theredshank/Url/Urlconnection.dart';
 
@@ -129,7 +131,7 @@ class SignupState extends State<Signup> {
     var response = await http.post(url, body: (data));
     //  String jsonsDataString = response.body.toString();
     // Getting Server response into variable.
-   // var message = json.decode(response.body);
+    var message = json.decode(response.body);
 
     // If Web call Success than Hide the CircularProgressIndicator.
     if(response.statusCode == 200){
@@ -143,13 +145,20 @@ class SignupState extends State<Signup> {
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: new Text("User Registered Successfully \n Please do login"),
+          title: new Text(message),
           actions: <Widget>[
             FlatButton(
+
               child: new Text("OK"),
               onPressed: () {
+                if(message=="User registered successfully"){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Login()));
+                }
+                else{
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Signup()));
+                }
                 //Navigator.of(context).pop();
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>Login()));
+
               },
             ),
           ],
