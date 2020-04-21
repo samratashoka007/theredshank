@@ -14,9 +14,12 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart'as http;
 import 'package:move_to_background/move_to_background.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:theredshank/Login/Login.dart';
 import 'package:theredshank/Modal/Validation.dart';
+import 'package:theredshank/Signup/Signup.dart';
 import 'package:theredshank/Theme/Loader.dart';
 import 'package:theredshank/Url/Urlconnection.dart';
+import 'package:theredshank/contactUs/contactUs.dart';
 import '../CustomButton.dart';
 import '../FormInputDecoration.dart';
 import '../Root.dart';
@@ -115,7 +118,7 @@ class WelcomeScree extends State {
       child: Scaffold(
         appBar: AppBar(
           elevation: 0.0,
-          title: Text("TheRedshank"),
+          title: Text("The Redshank"),
           backgroundColor: Colors.red.shade800,
 
           actions: <Widget>[
@@ -142,13 +145,49 @@ class WelcomeScree extends State {
             return Stack(
               children: <Widget>[
                 WelcomFormn(context),
-                loader ? LoaderWidget() : Container()
+                loader ? LoaderWidget() : Container(),
+                Container(
+                  child: Align(
+                    alignment: FractionalOffset.bottomCenter,
+                    child: new Padding(
+                      padding: EdgeInsets.only(top: 200.0,bottom: 10.0),
+                      child:RaisedButton(
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => contactUs()));
+                        },
+                        child: Text("Contact us", style: new TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.0,
+
+                        ),
+                        ),
+                        textColor: Colors.white,
+
+                        color: Colors.red.shade800,
+                        //width: 250.0,
+
+                      ),
+
+                    ),
+                    /*child: MaterialButton(
+                      onPressed: () => {
+                      Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => contactUs()))
+                      },
+                      child: Text('Contact us'),
+                    ),*/
+                  ),
+                ),
               ],
             );
           }
 
 
-          ))
+
+          )
+          )
+
       ),
       //  key: _scaffoldKey,
 
@@ -739,7 +778,7 @@ class WelcomeScree extends State {
 
            children: <Widget>[
              new Text(
-               'Wlecome on The RedShank',
+               'Welcome to the Redshank',
                style: new TextStyle(
                  fontWeight: FontWeight.bold,
                  fontSize: 20.0,
@@ -762,7 +801,7 @@ class WelcomeScree extends State {
                    style: FormInputDecoration.CustomTextStyle(),
                    textAlign: TextAlign.center,
                    textCapitalization: TextCapitalization.none,
-                   decoration: FormInputDecoration.FormInputDesign(name: "Enter a Token No",
+                   decoration: FormInputDecoration.FormInputDesign(name: "Enter Order No",
                      errorText: _validate ? 'Value Can\'t Be Empty' : null,),
                    onFieldSubmitted: (node) {
                      //  password.unfocus();
@@ -849,7 +888,7 @@ class WelcomeScree extends State {
                        ),
                        Center(
 
-                         child: Text('Token is = $msg',
+                         child: Text('Order is = $msg',
                            style: new TextStyle(
                              fontWeight: FontWeight.bold,
                              fontSize: 20.0,
@@ -866,6 +905,37 @@ class WelcomeScree extends State {
                  ),
                ],
              ),
+
+
+
+             /*Container(
+               width: MediaQuery.of(context).size.width,
+               child: Column(
+
+                 crossAxisAlignment: CrossAxisAlignment.center,
+                 children: <Widget>[
+
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child:  CustomButton(
+
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => Signup()));
+                      },
+                      text: "Sign Up",
+                      color: Colors.red.shade800,
+                      width: 250.0,
+                    ),
+
+                  ),
+                     SizedBox(
+                       height: 5.0,
+                     ),
+
+                 ],
+               ),
+             )*/
              /* new FutureBuilder<String>(
                 future: fetchPatientCount(),
                 builder: (context, snapshot) {
