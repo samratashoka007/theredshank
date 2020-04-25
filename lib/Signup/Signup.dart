@@ -6,12 +6,14 @@ import 'package:flutter/material.dart';
 
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:theredshank/Home/Home.dart';
 import 'package:theredshank/Login/Login.dart';
 import 'package:theredshank/Modal/Validation.dart';
 import 'package:theredshank/Root.dart';
 import 'package:theredshank/Theme/Loader.dart';
 import 'package:theredshank/Url/Urlconnection.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 import '../CustomButton.dart';
@@ -27,19 +29,20 @@ class Signup extends StatefulWidget {
 
 class SignupState extends State<Signup> {
 
-  FocusNode username;
+  FocusNode username,firstname,lastname;
   FocusNode email;
   FocusNode password;
   FocusNode confirmPassword;
   FocusNode postCode;
   FocusNode suffix;
 
-  TextEditingController emailCtrl, passwordCtrl, usernameCtrl, cpasswordCtrl,postcodeCtrl,suffixCtrl;
+  TextEditingController emailCtrl, passwordCtrl, usernameCtrl, cpasswordCtrl,postcodeCtrl,suffixCtrl,fnameCtrl,lnameCtrl;
 
   final _formKey = GlobalKey<FormState>();
   bool _autoValid = false;
   bool loader = false;
-
+  bool _termsChecked = false;
+  bool checkboxValue = false;
   bool visible = false ;
   @override
   void initState() {
@@ -56,8 +59,12 @@ class SignupState extends State<Signup> {
     cpasswordCtrl = TextEditingController();
     postcodeCtrl = TextEditingController();
     suffixCtrl = TextEditingController();
+    fnameCtrl = TextEditingController();
+    lnameCtrl = TextEditingController();
 
     username = FocusNode();
+    firstname = FocusNode();
+    lastname = FocusNode();
     email = FocusNode();
     password = FocusNode();
     confirmPassword = FocusNode();
@@ -71,6 +78,8 @@ class SignupState extends State<Signup> {
     super.dispose();
 
     username?.unfocus();
+    firstname?.unfocus();
+    lastname?.unfocus();
     email?.unfocus();
     password?.unfocus();
     confirmPassword?.unfocus();
@@ -104,67 +113,77 @@ class SignupState extends State<Signup> {
     email.unfocus();
     password.unfocus();
     username.unfocus();
+    firstname.unfocus();
+    lastname.unfocus();
     confirmPassword.unfocus();
     postCode.unfocus();
-    suffix.unfocus();
+  //  suffix.unfocus();
 
     // Showing CircularProgressIndicator.
-    setState(() {
-      loader = true;
-    });
-
-    // Getting value from Controller
-    String getemail = emailCtrl.value.text;
-    String getpassword = passwordCtrl.value.text;
-    String getname = usernameCtrl.value.text;
-    String getpostcode=postcodeCtrl.value.text;
-    String getsuffix=suffixCtrl.value.text;
-
-
-    // SERVER API URL
-    var url = UrlCollection.reg_url;
-
-    // Store all data with Param Name.
-    var data = {'name': getname, 'email': getemail, 'password' : getpassword,'suffix':getsuffix,'post_code':getpostcode};
-
-    // Starting Web API Call.
-    var response = await http.post(url, body: (data));
-    //  String jsonsDataString = response.body.toString();
-    // Getting Server response into variable.
-    var message = json.decode(response.body);
-
-    // If Web call Success than Hide the CircularProgressIndicator.
-    if(response.statusCode == 200){
-      setState(() {
-        loader = false;
-        _formKey.currentState?.reset();
-       // widget.firstScreenFormKey?.currentState?.reset();
-      });
+    if(checkboxValue==false){
+      Fluttertoast.showToast(msg: "Please agree on the terms and condition it is required");
     }
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: new Text(message),
-          actions: <Widget>[
-            FlatButton(
+    else{
+      setState(() {
+        loader = true;
+      });
 
-              child: new Text("OK"),
-              onPressed: () {
-                if(message=="User registered successfully"){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Login()));
-                }
-                else{
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Signup()));
-                }
-                //Navigator.of(context).pop();
+      // Getting value from Controller
+      String getemail = emailCtrl.value.text;
+      String getpassword = passwordCtrl.value.text;
+      String getname = usernameCtrl.value.text;
+      String getfname = fnameCtrl.value.text;
+      String getlname = lnameCtrl.value.text;
+      String getpostcode=postcodeCtrl.value.text;
+      String getsuffix=suffixCtrl.value.text;
 
-              },
-            ),
-          ],
-        );
-      },
-    );
+
+      // SERVER API URL
+      var url = UrlCollection.reg_url;
+
+      // Store all data with Param Name.
+      var data = {'username': getname,'firstname':getfname,'lastname':getlname, 'email': getemail, 'password' : getpassword,'post_code':getpostcode};
+
+      // Starting Web API Call.
+      var response = await http.post(url, body: (data));
+      //  String jsonsDataString = response.body.toString();
+      // Getting Server response into variable.
+      var message = json.decode(response.body);
+
+      // If Web call Success than Hide the CircularProgressIndicator.
+      if(response.statusCode == 200){
+        setState(() {
+          loader = false;
+          _formKey.currentState?.reset();
+          // widget.firstScreenFormKey?.currentState?.reset();
+        });
+      }
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CupertinoAlertDialog(
+            title: new Text(message),
+            actions: <Widget>[
+              FlatButton(
+
+                child: new Text("OK"),
+                onPressed: () {
+                  if(message=="User registered successfully"){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>Login()));
+                  }
+                  else{
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+                  }
+                  //Navigator.of(context).pop();
+
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+
 
   }
   Widget SignupForm(BuildContext context) {
@@ -190,17 +209,65 @@ class SignupState extends State<Signup> {
                   style: FormInputDecoration.CustomTextStyle(),
                   textAlign: TextAlign.center,
                   textCapitalization: TextCapitalization.none,
-                  decoration: FormInputDecoration.FormInputDesign(name: "Username"),
+                  decoration: FormInputDecoration.FormInputDesign(name: "User Name"),
                   onFieldSubmitted: (node) {
                     username.unfocus();
-                    FocusScope.of(context).requestFocus(email);
+                    FocusScope.of(context).requestFocus(username);
+                  },
+
+                  // validator: validateEmail, //passing the reference of the validation mixin, not calling directly
+                  validator: (value) => CheckFieldValidation(
+                      val: value,
+                      password: null,
+                      fieldName: "UserName",
+                      fieldType: VALIDATION_TYPE.TEXT),
+
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                TextFormField(
+                  controller: fnameCtrl,
+                  textInputAction: TextInputAction.next,
+                  focusNode: firstname,
+                  style: FormInputDecoration.CustomTextStyle(),
+                  textAlign: TextAlign.center,
+                  textCapitalization: TextCapitalization.none,
+                  decoration: FormInputDecoration.FormInputDesign(name: "First Name"),
+                  onFieldSubmitted: (node) {
+                    firstname.unfocus();
+                    FocusScope.of(context).requestFocus(firstname);
                   },
 
                  // validator: validateEmail, //passing the reference of the validation mixin, not calling directly
                   validator: (value) => CheckFieldValidation(
                       val: value,
                       password: null,
-                      fieldName: "Username",
+                      fieldName: "First Name",
+                      fieldType: VALIDATION_TYPE.TEXT),
+
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                TextFormField(
+                  controller: lnameCtrl,
+                  textInputAction: TextInputAction.next,
+                  focusNode: lastname,
+                  style: FormInputDecoration.CustomTextStyle(),
+                  textAlign: TextAlign.center,
+                  textCapitalization: TextCapitalization.none,
+                  decoration: FormInputDecoration.FormInputDesign(name: "Last Name"),
+                  onFieldSubmitted: (node) {
+                    lastname.unfocus();
+                    FocusScope.of(context).requestFocus(lastname);
+                  },
+
+                  // validator: validateEmail, //passing the reference of the validation mixin, not calling directly
+                  validator: (value) => CheckFieldValidation(
+                      val: value,
+                      password: null,
+                      fieldName: "Last Name",
                       fieldType: VALIDATION_TYPE.TEXT),
 
                 ),
@@ -276,7 +343,72 @@ class SignupState extends State<Signup> {
                 SizedBox(
                   height: 20.0,
                 ),
-                TextFormField(
+                /* CheckboxListTile(
+                    title: new Text('Terms and Conditionns'),
+                    value: _termsChecked,
+                    onChanged: (bool value) =>
+                        setState(() => _termsChecked = value),
+                ),*/
+                /*CheckboxListTile(
+                  activeColor: Theme.of(context).accentColor,
+                  title: Text("I agree to the Redshank's privacy policy"),
+                  value: _termsChecked,
+                  onChanged: (bool value) => setState(() => _termsChecked = value),
+                  subtitle: !_termsChecked
+                      ? Padding(
+                    padding: EdgeInsets.fromLTRB(12.0, 0, 0, 0),
+                   *//* child: Text('Required field', style: TextStyle(color: Color(0xFFe53935), fontSize: 12),
+                    ),*//*
+                    child: Row(
+                      children: [
+                         Text('Required field', style: TextStyle(color: Color(0xFFe53935), fontSize: 12),),
+
+                      ],
+                    ),
+
+                  )
+                      : null,
+                ),*/
+              CheckboxListTile(
+              value: checkboxValue,
+              onChanged: (val) {
+                if (checkboxValue == false) {
+                  setState(() {
+                    checkboxValue = true;
+                  });
+                } else if (checkboxValue == true) {
+                  setState(() {
+                    checkboxValue = false;
+                  });
+                }
+              },
+              subtitle: !checkboxValue
+                  ? Text(
+                'Required.',
+                style: TextStyle(color: Colors.red.shade800),
+              )
+                  : null,
+              title: new Text(
+                "I agree to the Redshank's privacy policy.",
+                style: TextStyle(fontSize: 14.0),
+              ),
+              controlAffinity: ListTileControlAffinity.leading,
+              activeColor: Colors.red.shade800,
+
+            ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                 InkWell(
+                    child: new Text("Click Here to check the Redshank's privacy policy ",
+                    style: TextStyle(color: Colors.red.shade800),),
+                    onTap: () => launch('https://www.theredshank.com/privacy-policy/')
+
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+              /*  TextFormField(
                   controller: suffixCtrl,
                   textInputAction: TextInputAction.done,
                   focusNode: suffix,
@@ -297,7 +429,7 @@ class SignupState extends State<Signup> {
                 ),
                 SizedBox(
                   height: 20.0,
-                ),
+                ),*/
             /*    TextFormField(
                   controller: cpasswordCtrl,
                   textInputAction: TextInputAction.done,

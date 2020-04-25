@@ -146,7 +146,7 @@ class WelcomeScree extends State {
               children: <Widget>[
                 WelcomFormn(context),
                 loader ? LoaderWidget() : Container(),
-                Container(
+              /*  Container(
                   child: Align(
                     alignment: FractionalOffset.bottomCenter,
                     child: new Padding(
@@ -170,15 +170,15 @@ class WelcomeScree extends State {
                       ),
 
                     ),
-                    /*child: MaterialButton(
+                    *//*child: MaterialButton(
                       onPressed: () => {
                       Navigator.push(context,
                       MaterialPageRoute(builder: (context) => contactUs()))
                       },
                       child: Text('Contact us'),
-                    ),*/
+                    ),*//*
                   ),
-                ),
+                ),*/
               ],
             );
           }

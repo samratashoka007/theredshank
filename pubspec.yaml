@@ -26,6 +26,7 @@ dependencies:
   flutter_ringtone_player: ^2.0.0
   audioplayers: ^0.15.1
   move_to_background: 1.0.0+1
+  url_launcher: ^5.4.2
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
